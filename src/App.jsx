@@ -196,6 +196,8 @@ const BirthdayGame = () => {
     if (musicEnabled && audioRef.current) {
       audioRef.current.play().catch(e => console.log('Audio play failed:', e));
     }
+    // Scroll to top on game start
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const resetGame = () => {
@@ -418,7 +420,7 @@ const BirthdayGame = () => {
                   )}
                 </button>
                 {!isClicked && (
-                  <div className="relative w-max max-w-full px-1 -mt-4 mx-auto" style={{ zIndex: 999 }}>
+                  <div className="relative w-max max-w-full px-1 -mt-4 mx-auto" style={{ zIndex: 10 }}>
                     <div className="bg-black/60 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap shadow-lg border border-white/20 text-center">
                       +{friend.points}
                     </div>
