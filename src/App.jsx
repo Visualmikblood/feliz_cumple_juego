@@ -238,7 +238,7 @@ const BirthdayGame = () => {
         <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-12 shadow-2xl max-w-lg w-full text-center">
           <Cake className="w-24 h-24 mx-auto mb-6 text-yellow-300 animate-bounce" />
           
-          <h1 className="text-5xl font-bold text-white mb-4">
+          <h1 className="text-5xl font-bold text-white mb-4 titulo_feliz_cumple">
             ¡FELIZ CUMPLEAÑOS Miguel! 🎂
           </h1>
           

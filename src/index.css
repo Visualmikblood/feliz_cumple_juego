@@ -8,3 +8,7 @@
 .animate-gentle-bounce {
   animation: gentle-bounce 1.5s ease-in-out infinite;
 }
+
+.titulo_feliz_cumple{
+    font-size: 2rem !important;
+}
