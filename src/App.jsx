@@ -481,63 +481,68 @@ const BirthdayGame = () => {
 
         {/* Progress panel */}
         <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-4 shadow-lg">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-6">
-              {gameMode === 'points' ? (
-                <>
-                  <div className={`flex items-center gap-2 text-white ${score >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                    <Trophy className="w-6 h-6" />
-                    <span className="font-bold text-lg">{score} puntos</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-yellow-300">
-                    <Star className="w-6 h-6" />
-                    <span className="font-bold">{collectedStars} bonus</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-red-300">
-                    <Zap className="w-6 h-6" />
-                    <span className="font-bold">{collectedCurses} maldiciones</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2 text-white">
-                    <Award className="w-6 h-6 text-yellow-300" />
-                    <span className="font-bold text-lg">
-                      {Object.keys(friendRatings).length > 0 
-                        ? `${(Object.values(friendRatings).reduce((a, b) => a + b, 0) / Object.values(friendRatings).length).toFixed(1)}/100 promedio`
-                        : 'Sin calificaciones aún'
-                      }
-                    </span>
-                  </div>
-                </>
-              )}
-              <div className="text-white font-semibold">
-                {clickedBalls.size}/11 mensajes leídos
+          {/* Stats section - responsive for points mode, original for rating mode */}
+          {gameMode === 'points' ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+              <div className={`flex items-center gap-2 text-white ${score >= 0 ? 'text-green-300' : 'text-red-300'} justify-center md:justify-start`}>
+                <Trophy className="w-5 h-5 md:w-6 md:h-6" />
+                <span className="font-bold text-sm md:text-lg">{score} puntos</span>
+              </div>
+              <div className="flex items-center gap-2 text-yellow-300 justify-center md:justify-start">
+                <Star className="w-5 h-5 md:w-6 md:h-6" />
+                <span className="font-bold text-sm md:text-base">{collectedStars} bonus</span>
+              </div>
+              <div className="flex items-center gap-2 text-red-300 justify-center md:justify-start">
+                <Zap className="w-5 h-5 md:w-6 md:h-6" />
+                <span className="font-bold text-sm md:text-base">{collectedCurses} mald</span>
+              </div>
+              <div className="flex items-center gap-2 text-white justify-center md:justify-start">
+                <span className="font-semibold text-sm md:text-base">
+                  {clickedBalls.size}/11 leídos
+                </span>
               </div>
             </div>
-            
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setMusicEnabled(!musicEnabled)}
-                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors duration-300"
-              >
-                {musicEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-              </button>
-              
-              <button
-                onClick={shareMessage}
-                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors duration-300"
-              >
-                <Share className="w-5 h-5" />
-              </button>
-              
-              <button
-                onClick={resetGame}
-                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors duration-300"
-              >
-                <RotateCcw className="w-5 h-5" />
-              </button>
+          ) : (
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2 text-white">
+                  <Award className="w-6 h-6 text-yellow-300" />
+                  <span className="font-bold text-lg">
+                    {Object.keys(friendRatings).length > 0
+                      ? `${(Object.values(friendRatings).reduce((a, b) => a + b, 0) / Object.values(friendRatings).length).toFixed(1)}/100 promedio`
+                      : 'Sin calificaciones aún'
+                    }
+                  </span>
+                </div>
+                <div className="text-white font-semibold">
+                  {clickedBalls.size}/11 mensajes leídos
+                </div>
+              </div>
             </div>
+          )}
+
+          {/* Control buttons - responsive */}
+          <div className="flex items-center justify-center gap-2 md:gap-3 mb-4">
+            <button
+              onClick={() => setMusicEnabled(!musicEnabled)}
+              className="bg-white/20 hover:bg-white/30 text-white p-2 md:p-3 rounded-full transition-colors duration-300"
+            >
+              {musicEnabled ? <Volume2 className="w-4 h-4 md:w-5 md:h-5" /> : <VolumeX className="w-4 h-4 md:w-5 md:h-5" />}
+            </button>
+
+            <button
+              onClick={shareMessage}
+              className="bg-white/20 hover:bg-white/30 text-white p-2 md:p-3 rounded-full transition-colors duration-300"
+            >
+              <Share className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+
+            <button
+              onClick={resetGame}
+              className="bg-white/20 hover:bg-white/30 text-white p-2 md:p-3 rounded-full transition-colors duration-300"
+            >
+              <RotateCcw className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
           </div>
 
           {/* Progress bar */}
