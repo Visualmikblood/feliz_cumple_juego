@@ -867,14 +867,10 @@ const BirthdayGame = () => {
                   max="100"
                   value={currentRating}
                   onChange={(e) => setCurrentRating(parseInt(e.target.value))}
-                  className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  className="w-full h-4 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                   style={{
-                    background: `linear-gradient(to right, #ef4444 0%, #f59e0b 50%, #10b981 100%)`
+                    background: `linear-gradient(to right, #ef4444 0%, #f59e0b ${(currentRating - 1) / 99 * 100}%, #10b981 ${(currentRating - 1) / 99 * 100}%)`
                   }}
-                />
-                <div 
-                  className="absolute top-0 w-6 h-6 bg-white border-4 border-yellow-500 rounded-full shadow-lg transform -translate-y-1.5 transition-all duration-200"
-                  style={{ left: `calc(${(currentRating - 1) / 99 * 100}% - 12px)` }}
                 />
               </div>
               
