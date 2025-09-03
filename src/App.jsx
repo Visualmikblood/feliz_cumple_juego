@@ -272,7 +272,7 @@ const BirthdayGame = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 p-4 relative overflow-hidden ${magicMode ? 'animate-pulse' : ''}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 p-4 relative overflow-hidden titulo_segunda_pantalla ${magicMode ? 'animate-pulse' : ''}`}>
       {/* Efectos especiales */}
       {specialEffects.map((effect) => (
         <div
@@ -304,7 +304,7 @@ const BirthdayGame = () => {
       <div className="max-w-6xl mx-auto mb-8">
         <div className="text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 animate-bounce">
-            🎈 ¡FELIZ CUMPLEAÑOS! 🎈
+             ¡FELIZ CUMPLEAÑOS! 
           </h1>
           <p className="text-xl text-white/90 mb-6">
             Haz clic en las bolitas para descubrir los mensajes de tus amigos
