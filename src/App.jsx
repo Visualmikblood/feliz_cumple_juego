@@ -15,6 +15,7 @@ const BirthdayGame = () => {
   const [collectedStars, setCollectedStars] = useState(0);
   const [collectedCurses, setCollectedCurses] = useState(0);
   const [specialEffects, setSpecialEffects] = useState([]);
+  const [ballEffects, setBallEffects] = useState({}); // Track persistent effects per ball
   const [showCelebration, setShowCelebration] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [ballPoints, setBallPoints] = useState({});
@@ -206,17 +207,36 @@ const BirthdayGame = () => {
       const points = ballPoints[friend.id];
       setScore(prev => prev + points);
 
-      // Random special effects
-      if (Math.random() < 0.3) { // 30% chance for star bonus
-        setCollectedStars(prev => prev + 1);
-        setScore(prev => prev + 50); // Bonus points
-        generateSpecialEffect('star', x, y);
-      }
+      // Check if this ball already has an effect assigned
+      if (!ballEffects[friend.id]) {
+        const random = Math.random();
+        let effect = null;
 
-      if (Math.random() < 0.2) { // 20% chance for curse penalty
-        setCollectedCurses(prev => prev + 1);
-        setScore(prev => prev - 30); // Penalty points
-        generateSpecialEffect('curse', x, y);
+        if (random < 0.3) { // 30% chance for star bonus
+          effect = 'star';
+          setCollectedStars(prev => prev + 1);
+          setScore(prev => prev + 50); // Bonus points
+        } else if (random < 0.5) { // 20% chance for curse penalty (30% - 50% range)
+          effect = 'curse';
+          setCollectedCurses(prev => prev + 1);
+          setScore(prev => prev - 30); // Penalty points
+        }
+
+        // Store the effect for this ball (persistent)
+        setBallEffects(prev => ({
+          ...prev,
+          [friend.id]: effect
+        }));
+
+        // Generate visual effect if there was one
+        if (effect) {
+          generateSpecialEffect(effect, x, y);
+        }
+      } else {
+        // If ball already has an effect, just show the visual effect again
+        if (ballEffects[friend.id]) {
+          generateSpecialEffect(ballEffects[friend.id], x, y);
+        }
       }
     }
 
@@ -281,6 +301,7 @@ const BirthdayGame = () => {
     setSpecialEffects([]);
     setShowCelebration(false);
     setBallPoints({});
+    setBallEffects({}); // Reset ball effects
     setFriendRatings({});
     setShowRatingModal(false);
     setCurrentRating(50);
@@ -801,9 +822,29 @@ const BirthdayGame = () => {
                 Mensaje de {selectedFriend.name} 💌
               </h3>
               {gameMode === 'points' && (
-                <p className={`font-bold text-lg ${ballPoints[selectedFriend.id] >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {ballPoints[selectedFriend.id] >= 0 ? '+' : ''}{ballPoints[selectedFriend.id]} puntos
-                </p>
+                <div className="mb-4">
+                  <p className={`font-bold text-lg ${ballPoints[selectedFriend.id] >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {ballPoints[selectedFriend.id] >= 0 ? '+' : ''}{ballPoints[selectedFriend.id]} puntos
+                  </p>
+                  {ballEffects[selectedFriend.id] === 'star' && (
+                    <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-3 mt-3 flex items-center gap-3">
+                      <Star className="w-8 h-8 text-yellow-500 animate-spin" />
+                      <div>
+                        <p className="font-bold text-yellow-800">¡Estrella Bonus! ⭐</p>
+                        <p className="text-yellow-700 text-sm">+50 puntos extra por esta felicitación</p>
+                      </div>
+                    </div>
+                  )}
+                  {ballEffects[selectedFriend.id] === 'curse' && (
+                    <div className="bg-red-100 border border-red-300 rounded-lg p-3 mt-3 flex items-center gap-3">
+                      <Zap className="w-8 h-8 text-red-500 animate-bounce" />
+                      <div>
+                        <p className="font-bold text-red-800">¡Maldición! ⚡</p>
+                        <p className="text-red-700 text-sm">-30 puntos de penalización</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
             
@@ -865,11 +906,13 @@ const BirthdayGame = () => {
                   type="range"
                   min="1"
                   max="100"
+                  step="1"
                   value={currentRating}
                   onChange={(e) => setCurrentRating(parseInt(e.target.value))}
-                  className="w-full h-4 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  className="w-full h-4 bg-gray-200 rounded-lg appearance-none cursor-pointer slider smooth-slider"
                   style={{
-                    background: `linear-gradient(to right, #ef4444 0%, #f59e0b ${(currentRating - 1) / 99 * 100}%, #10b981 ${(currentRating - 1) / 99 * 100}%)`
+                    background: `linear-gradient(to right, #ef4444 0%, #f59e0b ${(currentRating - 1) / 99 * 100}%, #10b981 ${(currentRating - 1) / 99 * 100}%)`,
+                    transition: 'background 0.1s ease-out'
                   }}
                 />
               </div>
@@ -923,6 +966,7 @@ const BirthdayGame = () => {
           border: 4px solid #eab308;
           cursor: pointer;
           box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+          transition: all 0.1s ease-out;
         }
 
         .slider::-moz-range-thumb {
@@ -933,6 +977,19 @@ const BirthdayGame = () => {
           border: 4px solid #eab308;
           cursor: pointer;
           box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+          transition: all 0.1s ease-out;
+        }
+
+        .smooth-slider {
+          transition: background 0.15s ease-out;
+        }
+
+        .smooth-slider::-webkit-slider-thumb {
+          transition: all 0.15s ease-out;
+        }
+
+        .smooth-slider::-moz-range-thumb {
+          transition: all 0.15s ease-out;
         }
       `}</style>
     </div>
