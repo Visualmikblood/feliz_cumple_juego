@@ -18,92 +18,103 @@ const BirthdayGame = () => {
 
   const friends = [
     {
-      id: 1, 
-      name: "María", 
-      color: "bg-pink-400", 
+      id: 1,
+      name: "María",
+      color: "bg-pink-400",
       message: "¡Feliz cumpleaños! Eres una persona increíble y estoy muy agradecida de tenerte en mi vida. Que este nuevo año te traiga muchas aventuras y momentos felices. ¡Te quiero mucho! 🎉💕",
-      icon: Heart, 
-      points: 10
+      icon: Heart,
+      points: 10,
+      photo: "/photos/maria.jpg"
     },
     {
-      id: 2, 
-      name: "Carlos", 
-      color: "bg-blue-400", 
+      id: 2,
+      name: "Carlos",
+      color: "bg-blue-400",
       message: "¡Hey cumpleañero/a! Espero que tengas un día fantástico lleno de risas y buena comida. Gracias por ser un amigo tan genial y por todos los buenos momentos que hemos compartido. ¡A celebrar! 🎂🎈",
-      icon: Gift, 
-      points: 15
+      icon: Gift,
+      points: 15,
+      photo: "/photos/carlos.jpg"
     },
     {
-      id: 3, 
-      name: "Ana", 
-      color: "bg-green-400", 
+      id: 3,
+      name: "Ana",
+      color: "bg-green-400",
       message: "¡Felicidades en tu día especial! Eres una de las personas más divertidas que conozco. Que cumplas muchos más años llenos de salud, amor y éxito. ¡Disfruta tu día al máximo! ✨🌟",
-      icon: Star, 
-      points: 25
+      icon: Star,
+      points: 25,
+      photo: "/photos/ana.jpg"
     },
     {
-      id: 4, 
-      name: "Pedro", 
-      color: "bg-yellow-400", 
+      id: 4,
+      name: "Pedro",
+      color: "bg-yellow-400",
       message: "¡Cumpleaños feliz! Me alegra mucho poder celebrar contigo otro año de vida. Eres una persona especial que siempre sabe cómo hacer sonreír a los demás. ¡Que tengas un día maravilloso! 🎊🎁",
-      icon: PartyPopper, 
-      points: 12
+      icon: PartyPopper,
+      points: 12,
+      photo: "/photos/pedro.jpg"
     },
     {
-      id: 5, 
-      name: "Laura", 
-      color: "bg-purple-400", 
+      id: 5,
+      name: "Laura",
+      color: "bg-purple-400",
       message: "¡Feliz cumple! Gracias por ser tan buena persona y por todos los momentos increíbles que hemos vivido juntos. Espero que este nuevo año de vida esté lleno de nuevas oportunidades y mucha felicidad. 💜🎯",
-      icon: Sparkles, 
-      points: 30
+      icon: Sparkles,
+      points: 30,
+      photo: "/photos/laura.jpg"
     },
     {
-      id: 6, 
-      name: "Diego", 
-      color: "bg-red-400", 
+      id: 6,
+      name: "Diego",
+      color: "bg-red-400",
       message: "¡Qué tengas un cumpleaños espectacular! Eres una persona única y especial. Que este año te traiga todo lo que deseas y más. ¡Vamos a celebrar como se debe! 🔥🎸",
-      icon: Cake, 
-      points: 18
+      icon: Cake,
+      points: 18,
+      photo: "/photos/diego.jpg"
     },
     {
-      id: 7, 
-      name: "Sofia", 
-      color: "bg-indigo-400", 
+      id: 7,
+      name: "Sofia",
+      color: "bg-indigo-400",
       message: "¡Feliz cumpleaños querido/a! Tu amistad significa mucho para mí. Eres alguien en quien siempre puedo confiar. Que tengas un año lleno de bendiciones y momentos hermosos. 💙🦋",
-      icon: Heart, 
-      points: 22
+      icon: Heart,
+      points: 22,
+      photo: "/photos/sofia.jpg"
     },
     {
-      id: 8, 
-      name: "Miguel", 
-      color: "bg-orange-400", 
+      id: 8,
+      name: "Miguel",
+      color: "bg-orange-400",
       message: "¡Cumpleaños feliz! Espero que tu día esté lleno de sorpresas maravillosas. Gracias por ser un amigo tan leal y divertido. ¡Que celebres muchos cumpleaños más! 🧡🎭",
-      icon: Gift, 
-      points: 16
+      icon: Gift,
+      points: 16,
+      photo: "/photos/miguel.jpg"
     },
     {
-      id: 9, 
-      name: "Carmen", 
-      color: "bg-teal-400", 
+      id: 9,
+      name: "Carmen",
+      color: "bg-teal-400",
       message: "¡Feliz cumple! Eres una persona extraordinaria con un corazón enorme. Me siento afortunada de conocerte. Que este nuevo año de vida esté lleno de amor, risas y aventuras. 💚🌺",
-      icon: Star, 
-      points: 28
+      icon: Star,
+      points: 28,
+      photo: "/photos/carmen.jpg"
     },
     {
-      id: 10, 
-      name: "Javier", 
-      color: "bg-cyan-400", 
+      id: 10,
+      name: "Javier",
+      color: "bg-cyan-400",
       message: "¡Felicidades! Otro año más de vida para celebrar todo lo increíble que eres. Gracias por ser un amigo tan genial y por todos los buenos ratos. ¡A disfrutar este día especial! 🎨🎪",
-      icon: PartyPopper, 
-      points: 20
+      icon: PartyPopper,
+      points: 20,
+      photo: "/photos/javier.jpg"
     },
     {
-      id: 11, 
-      name: "Isabel", 
-      color: "bg-rose-400", 
+      id: 11,
+      name: "Isabel",
+      color: "bg-rose-400",
       message: "¡Feliz cumpleaños! Eres una persona muy especial que siempre ilumina el día de los demás. Que este nuevo año te traiga mucha paz, amor y todas las cosas buenas que mereces. 🌸✨",
-      icon: Sparkles, 
-      points: 35
+      icon: Sparkles,
+      points: 35,
+      photo: "/photos/isabel.jpg"
     }
   ];
 
@@ -382,26 +393,37 @@ const BirthdayGame = () => {
               <div key={friend.id} className="flex flex-col items-center">
                 <button
                   onClick={(e) => handleBallClick(friend, e)}
-                  className={`w-20 h-20 md:w-24 md:h-24 ${friend.color} rounded-full shadow-lg transform transition-all duration-300 hover:scale-110 hover:rotate-12 hover:shadow-2xl flex items-center justify-center relative ${
+                  className={`w-20 h-20 md:w-24 md:h-24 rounded-full shadow-lg transform transition-all duration-300 hover:scale-110 hover:rotate-12 hover:shadow-2xl flex items-center justify-center relative ${
                     isClicked ? `animate-bounce ${ballAnimations[friend.id] || ''} ring-4 ring-white/60` : 'hover:animate-pulse'
                   } ${magicMode ? 'animate-pulse ring-4 ring-yellow-300' : ''}`}
                 >
-                  <IconComponent className="w-8 h-8 md:w-10 md:h-10 text-white" />
-                  
+                  <img
+                    src={friend.photo}
+                    alt={friend.name}
+                    className="w-full h-full object-cover rounded-full"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                  {/* Fallback con icono si la imagen no carga */}
+                  <div className={`w-full h-full ${friend.color} rounded-full flex items-center justify-center ${friend.photo ? 'hidden' : 'flex'}`}>
+                    <IconComponent className="w-8 h-8 md:w-10 md:h-10 text-white" />
+                  </div>
+
                   {isClicked && (
-                    <div className="absolute -top-2 -right-2 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
+                    <div className="absolute -top-2 -right-2 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center animate-bounce z-20">
                       <span className="text-white text-sm font-bold">✓</span>
                     </div>
                   )}
-                  
-                  {!isClicked && (
-                    <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-                        +{friend.points}
-                      </div>
-                    </div>
-                  )}
                 </button>
+                {!isClicked && (
+                  <div className="relative w-max max-w-full px-1 -mt-4 mx-auto" style={{ zIndex: 999 }}>
+                    <div className="bg-black/60 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap shadow-lg border border-white/20 text-center">
+                      +{friend.points}
+                    </div>
+                  </div>
+                )}
                 
                 <p className="text-white font-semibold mt-3 text-sm text-center">
                   {friend.name}
@@ -461,8 +483,19 @@ const BirthdayGame = () => {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl transform animate-gentle-bounce max-h-[90vh] overflow-y-auto">
             <div className="text-center mb-6">
-              <div className={`w-20 h-20 ${selectedFriend.color} rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg animate-pulse`}>
-                <selectedFriend.icon className="w-10 h-10 text-white" />
+              <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg animate-pulse overflow-hidden">
+                <img
+                  src={selectedFriend.photo}
+                  alt={selectedFriend.name}
+                  className="w-full h-full object-cover rounded-full"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+                <div className={`w-full h-full ${selectedFriend.color} rounded-full flex items-center justify-center ${selectedFriend.photo ? 'hidden' : 'flex'}`}>
+                  <selectedFriend.icon className="w-10 h-10 text-white" />
+                </div>
               </div>
               <h3 className="text-3xl font-bold text-gray-800 mb-2">
                 Mensaje de {selectedFriend.name} 💌
