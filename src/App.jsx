@@ -14,7 +14,47 @@ const BirthdayGame = () => {
   const [collectedStars, setCollectedStars] = useState(0);
   const [specialEffects, setSpecialEffects] = useState([]);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef(null);
+  const utteranceRef = useRef(null);
+  
+  // Function to handle speech synthesis
+  const toggleSpeech = (text) => {
+    if (!window.speechSynthesis) {
+      alert('Tu navegador no soporta síntesis de voz.');
+      return;
+    }
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      if (audioRef.current) audioRef.current.volume = 1;
+    } else {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        if (audioRef.current) audioRef.current.volume = 0.1;
+      };
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        if (audioRef.current) audioRef.current.volume = 1;
+      };
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        if (audioRef.current) audioRef.current.volume = 1;
+      };
+      utteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+  
+  // Stop speech and restore volume when modal closes
+  useEffect(() => {
+    if (!showMessage && isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      if (audioRef.current) audioRef.current.volume = 1;
+    }
+  }, [showMessage]);
 
   const friends = [
     {
@@ -484,8 +524,8 @@ const BirthdayGame = () => {
       {showMessage && selectedFriend && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl transform animate-gentle-bounce max-h-[90vh] overflow-y-auto">
-            <div className="text-center mb-6">
-              <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg animate-pulse overflow-hidden">
+            <div className="text-center mb-6 flex flex-col items-center relative">
+              <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg animate-pulse overflow-hidden relative">
                 <img
                   src={selectedFriend.photo}
                   alt={selectedFriend.name}
@@ -498,6 +538,24 @@ const BirthdayGame = () => {
                 <div className={`w-full h-full ${selectedFriend.color} rounded-full flex items-center justify-center ${selectedFriend.photo ? 'hidden' : 'flex'}`}>
                   <selectedFriend.icon className="w-10 h-10 text-white" />
                 </div>
+                {/* Botón de altavoz */}
+                <button
+                  onClick={() => toggleSpeech(selectedFriend.message)}
+                  className="absolute bottom-0 right-0 bg-white/80 hover:bg-white/100 rounded-full p-2 shadow-lg transition-colors duration-300"
+                  aria-label={isSpeaking ? "Detener audio" : "Reproducir audio"}
+                >
+                  {isSpeaking ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11 5L6 9H2v6h4l5 4V5z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.54 8.46a5 5 0 010 7.07" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.07 4.93a9 9 0 010 14.14" />
+                    </svg>
+                  )}
+                </button>
               </div>
               <h3 className="text-3xl font-bold text-gray-800 mb-2">
                 Mensaje de {selectedFriend.name} 💌
