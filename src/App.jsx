@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Gift, Heart, Star, Sparkles, PartyPopper, Cake, Volume2, VolumeX, RotateCcw, Share } from 'lucide-react';
 
 const BirthdayGame = () => {
@@ -14,6 +14,7 @@ const BirthdayGame = () => {
   const [collectedStars, setCollectedStars] = useState(0);
   const [specialEffects, setSpecialEffects] = useState([]);
   const [showCelebration, setShowCelebration] = useState(false);
+  const audioRef = useRef(null);
 
   const friends = [
     {
@@ -180,6 +181,9 @@ const BirthdayGame = () => {
   const startGame = () => {
     setGameStarted(true);
     generateConfetti(80);
+    if (musicEnabled && audioRef.current) {
+      audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+    }
   };
 
   const resetGame = () => {
@@ -217,6 +221,17 @@ const BirthdayGame = () => {
     }
   }, [clickedBalls.size, showCelebration, friends.length]);
 
+  // Controlar la reproducción de audio cuando cambia musicEnabled
+  useEffect(() => {
+    if (audioRef.current) {
+      if (musicEnabled && gameStarted) {
+        audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [musicEnabled, gameStarted]);
+
   if (!gameStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center p-4">
@@ -224,7 +239,7 @@ const BirthdayGame = () => {
           <Cake className="w-24 h-24 mx-auto mb-6 text-yellow-300 animate-bounce" />
           
           <h1 className="text-5xl font-bold text-white mb-4">
-            ¡FELIZ CUMPLEAÑOS! 🎂
+            ¡FELIZ CUMPLEAÑOS Miguel! 🎂
           </h1>
           
           <p className="text-xl text-white/90 mb-8 leading-relaxed">
@@ -473,6 +488,15 @@ const BirthdayGame = () => {
           </div>
         </div>
       )}
+
+      {/* Elemento de audio oculto */}
+      <audio
+        ref={audioRef}
+        src="/Parchís - Cumpleaños feliz (128kbit_AAC).mp4"
+        loop
+        preload="auto"
+        style={{ display: 'none' }}
+      />
     </div>
   );
 };
