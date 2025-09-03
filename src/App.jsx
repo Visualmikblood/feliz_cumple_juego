@@ -145,16 +145,17 @@ const BirthdayGame = () => {
 
     setSelectedFriend(friend);
     setClickedBalls(prev => new Set([...prev, friend.id]));
-    setShowMessage(true);
     setScore(prev => prev + friend.points);
-    
+
     // Animación especial para la bolita
     setBallAnimations(prev => ({
       ...prev,
       [friend.id]: 'animate-spin'
     }));
-    
+
+    // Mostrar mensaje después de que termine la animación de rotación
     setTimeout(() => {
+      setShowMessage(true);
       setBallAnimations(prev => ({
         ...prev,
         [friend.id]: ''
