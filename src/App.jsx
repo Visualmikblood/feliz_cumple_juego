@@ -414,7 +414,7 @@ const BirthdayGame = () => {
       {/* Mensaje de celebración final */}
       {showCelebration && (
         <div className="max-w-4xl mx-auto text-center mb-8">
-          <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl p-8 shadow-2xl animate-bounce">
+          <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl p-8 shadow-2xl animate-gentle-bounce">
             <div className="flex justify-center gap-4 mb-6">
               <PartyPopper className="w-16 h-16 text-white animate-spin" />
               <Cake className="w-16 h-16 text-white animate-pulse" />
@@ -458,7 +458,7 @@ const BirthdayGame = () => {
       {/* Modal del mensaje */}
       {showMessage && selectedFriend && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl transform animate-bounce max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl transform animate-gentle-bounce max-h-[90vh] overflow-y-auto">
             <div className="text-center mb-6">
               <div className={`w-20 h-20 ${selectedFriend.color} rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg animate-pulse`}>
                 <selectedFriend.icon className="w-10 h-10 text-white" />
