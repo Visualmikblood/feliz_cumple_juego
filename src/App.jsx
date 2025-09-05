@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Gift, Heart, Star, Sparkles, PartyPopper, Cake, Volume2, VolumeX, RotateCcw, Share, Trophy, Zap, ThumbsDown, GamepadIcon, Target, Award, Users, Crown, TrendingDown } from 'lucide-react';
+import { Gift, Heart, Star, Sparkles, PartyPopper, Cake, Volume2, VolumeX, RotateCcw, Share, Trophy, Zap, ThumbsDown, GamepadIcon, Target, Award } from 'lucide-react';
 
 const BirthdayGame = () => {
   const [gameMode, setGameMode] = useState(null); // 'points' or 'rating'
@@ -22,15 +22,6 @@ const BirthdayGame = () => {
   const [friendRatings, setFriendRatings] = useState({});
   const [currentRating, setCurrentRating] = useState(50);
   const [showRatingModal, setShowRatingModal] = useState(false);
-  const [isMultiplayer, setIsMultiplayer] = useState(false);
-  const [gameState, setGameState] = useState('setup');
-  const [gameRoomId, setGameRoomId] = useState('');
-  const [playerName, setPlayerName] = useState('');
-  const [players, setPlayers] = useState([]);
-  const [isHost, setIsHost] = useState(false);
-  const [currentPlayerId, setCurrentPlayerId] = useState('');
-  const [allPlayersRatings, setAllPlayersRatings] = useState({});
-  const [multiplayerResults, setMultiplayerResults] = useState(null);
   const audioRef = useRef(null);
   const utteranceRef = useRef(null);
 
@@ -281,34 +272,15 @@ const BirthdayGame = () => {
     setShowRatingModal(false);
     setShowMessage(false);
     setCurrentRating(50);
-
-    // Check if all messages are rated
-    const updatedRatings = { ...friendRatings, [selectedFriend.id]: currentRating };
-    if (Object.keys(updatedRatings).length === friends.length) {
-      if (isMultiplayer) {
-        submitPlayerRatings();
-      } else {
-        setShowCelebration(true);
-        generateConfetti(100);
-      }
-    }
   };
 
-  const startGame = (mode, multiplayer = false) => {
+  const startGame = (mode) => {
     setGameMode(mode);
-    setIsMultiplayer(multiplayer);
-
-    if (multiplayer) {
-      setGameState('setup');
-    } else {
-      setGameStarted(true);
-      setGameState('playing');
-      if (mode === 'points') {
-        generateRandomPoints();
-      }
-      generateConfetti(80);
+    setGameStarted(true);
+    if (mode === 'points') {
+      generateRandomPoints();
     }
-
+    generateConfetti(80);
     if (musicEnabled && audioRef.current) {
       audioRef.current.play().catch(e => console.log('Audio play failed:', e));
     }
@@ -317,13 +289,6 @@ const BirthdayGame = () => {
 
   const resetGame = () => {
     setGameMode(null);
-    setIsMultiplayer(false);
-    setGameState('setup');
-    setGameRoomId('');
-    setPlayerName('');
-    setPlayers([]);
-    setIsHost(false);
-    setCurrentPlayerId('');
     setClickedBalls(new Set());
     setGameStarted(false);
     setShowMessage(false);
@@ -336,12 +301,10 @@ const BirthdayGame = () => {
     setSpecialEffects([]);
     setShowCelebration(false);
     setBallPoints({});
-    setBallEffects({});
+    setBallEffects({}); // Reset ball effects
     setFriendRatings({});
-    setAllPlayersRatings({});
     setShowRatingModal(false);
     setCurrentRating(50);
-    setMultiplayerResults(null);
   };
 
   const shareMessage = () => {
@@ -366,34 +329,40 @@ const BirthdayGame = () => {
 
   const getBestRatedFriend = () => {
     if (Object.keys(friendRatings).length === 0) return null;
-    const bestId = Object.keys(friendRatings).reduce((a, b) =>
+    const bestId = Object.keys(friendRatings).reduce((a, b) => 
       friendRatings[a] > friendRatings[b] ? a : b
     );
     return friends.find(f => f.id === parseInt(bestId));
   };
 
-  // Multiplayer functions (placeholders for now)
-  const createRoom = () => {
-    // Placeholder - would implement room creation logic
-    alert('Funcionalidad multijugador próximamente disponible');
+  const getWorstRatedFriend = () => {
+    if (Object.keys(friendRatings).length === 0) return null;
+    const worstId = Object.keys(friendRatings).reduce((a, b) => 
+      friendRatings[a] < friendRatings[b] ? a : b
+    );
+    return friends.find(f => f.id === parseInt(worstId));
   };
 
-  const joinRoom = () => {
-    // Placeholder - would implement room joining logic
-    alert('Funcionalidad multijugador próximamente disponible');
-  };
+  // Show celebration when all messages are read
+  useEffect(() => {
+    if (clickedBalls.size === friends.length && !showCelebration) {
+      setShowCelebration(true);
+      generateConfetti(100);
+      setMagicMode(true);
+      setTimeout(() => setMagicMode(false), 5000);
+    }
+  }, [clickedBalls.size, showCelebration, friends.length]);
 
-  const startMultiplayerGame = () => {
-    // Placeholder - would implement multiplayer game start logic
-    alert('Funcionalidad multijugador próximamente disponible');
-  };
-
-  const submitPlayerRatings = () => {
-    // Placeholder - would implement rating submission logic
-    alert('Funcionalidad multijugador próximamente disponible');
-  };
-
-
+  // Control audio playback
+  useEffect(() => {
+    if (audioRef.current) {
+      if (musicEnabled && gameStarted) {
+        audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [musicEnabled, gameStarted]);
 
   // Game mode selection screen
   if (!gameMode) {
@@ -426,11 +395,11 @@ const BirthdayGame = () => {
                   </ul>
                 </div>
                 <button
-                  onClick={() => startGame('points', false)}
-                  className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300 w-full"
+                  onClick={() => startGame('points')}
+                  className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300"
                 >
                   <GamepadIcon className="w-5 h-5 inline mr-2" />
-                  ¡Jugar Solo!
+                  ¡Jugar con Puntos!
                 </button>
               </div>
             </div>
@@ -449,393 +418,38 @@ const BirthdayGame = () => {
                     <li>• ¡Comparte tu promedio de calificaciones!</li>
                   </ul>
                 </div>
-                <div className="space-y-3">
-                  <button
-                    onClick={() => startGame('rating', false)}
-                    className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300 w-full"
-                  >
-                    <Star className="w-5 h-5 inline mr-2" />
-                    ¡Jugar Solo!
-                  </button>
-                  <button
-                    onClick={() => startGame('rating', true)}
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300 w-full"
-                  >
-                    <Users className="w-5 h-5 inline mr-2" />
-                    ¡Jugar Multijugador!
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Multiplayer setup screen
-  if (isMultiplayer && gameState === 'setup') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center p-4">
-        <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-12 shadow-2xl max-w-2xl w-full">
-          <div className="text-center mb-8">
-            <Users className="w-20 h-20 mx-auto mb-4 text-white" />
-            <h2 className="text-4xl font-bold text-white mb-4">Modo Multijugador</h2>
-            <p className="text-xl text-white/80">Configura tu sala de juego</p>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <label className="block text-white text-lg font-semibold mb-2">Tu nombre:</label>
-              <input
-                type="text"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                placeholder="Ingresa tu nombre"
-                className="w-full px-4 py-3 rounded-xl text-gray-800 text-lg font-medium bg-white/90 border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-colors"
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <button
-                onClick={createRoom}
-                disabled={!playerName.trim()}
-                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg transform hover:scale-105 transition-all duration-300 disabled:transform-none disabled:opacity-50"
-              >
-                <Crown className="w-6 h-6 inline mr-2" />
-                Crear Sala
-              </button>
-
-              <div className="space-y-2">
-                <input
-                  type="text"
-                  value={gameRoomId}
-                  onChange={(e) => setGameRoomId(e.target.value.toUpperCase())}
-                  placeholder="CÓDIGO"
-                  className="w-full px-4 py-3 rounded-xl text-gray-800 text-lg font-medium bg-white/90 border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-colors text-center"
-                />
                 <button
-                  onClick={joinRoom}
-                  disabled={!playerName.trim() || !gameRoomId.trim()}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold py-3 px-6 rounded-xl text-lg shadow-lg transform hover:scale-105 transition-all duration-300 disabled:transform-none disabled:opacity-50 w-full"
+                  onClick={() => startGame('rating')}
+                  className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300"
                 >
-                  <Users className="w-5 h-5 inline mr-2" />
-                  Unirse
+                  <Star className="w-5 h-5 inline mr-2" />
+                  ¡Jugar Calificando!
                 </button>
               </div>
             </div>
-
-            <button
-              onClick={resetGame}
-              className="w-full bg-white/20 hover:bg-white/30 text-white font-bold py-3 px-6 rounded-xl text-lg transition-colors duration-300"
-            >
-              <RotateCcw className="w-5 h-5 inline mr-2" />
-              Volver
-            </button>
           </div>
         </div>
       </div>
     );
   }
 
-  // Multiplayer waiting room
-  if (isMultiplayer && gameState === 'waiting') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center p-4">
-        <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-12 shadow-2xl max-w-2xl w-full">
-          <div className="text-center mb-8">
-            <div className="flex justify-center items-center gap-4 mb-4">
-              <Users className="w-16 h-16 text-white" />
-              <div className="text-left">
-                <h2 className="text-3xl font-bold text-white">Sala: {gameRoomId}</h2>
-                <p className="text-white/80">Esperando jugadores...</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4 mb-8">
-            <h3 className="text-xl font-bold text-white text-center">Jugadores ({players.length}):</h3>
-            {players.map((player) => (
-              <div key={player.id} className="bg-white/10 rounded-xl p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {player.isHost && <Crown className="w-5 h-5 text-yellow-400" />}
-                  <span className="text-white font-semibold text-lg">{player.name}</span>
-                  {player.id === currentPlayerId && <span className="text-yellow-300 text-sm">(Tú)</span>}
-                </div>
-                <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                  player.isReady 
-                    ? 'bg-green-500 text-white' 
-                    : 'bg-gray-500 text-white'
-                }`}>
-                  {player.isReady ? '✓ Listo' : '⏳ Esperando'}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center space-y-4">
-            {isHost ? (
-              <button
-                onClick={startMultiplayerGame}
-                disabled={players.length < 2}
-                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-lg transform hover:scale-105 transition-all duration-300 disabled:transform-none disabled:opacity-50"
-              >
-                <GamepadIcon className="w-6 h-6 inline mr-2" />
-                ¡Iniciar Juego!
-              </button>
-            ) : (
-              <div className="bg-white/10 rounded-xl p-4">
-                <p className="text-white text-lg">Esperando que el host inicie el juego...</p>
-              </div>
-            )}
-
-            <p className="text-white/70 text-sm">Mínimo 2 jugadores requeridos</p>
-
-            <button
-              onClick={resetGame}
-              className="bg-white/20 hover:bg-white/30 text-white font-bold py-3 px-6 rounded-xl text-lg transition-colors duration-300"
-            >
-              <RotateCcw className="w-5 h-5 inline mr-2" />
-              Salir de la Sala
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Multiplayer results screen
-  if (isMultiplayer && gameState === 'results' && multiplayerResults) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 p-4">
-        {/* Confetti */}
-        {confetti.map((piece) => (
-          <div
-            key={piece.id}
-            className={`absolute top-0 ${piece.color} text-2xl animate-bounce pointer-events-none z-30`}
-            style={{
-              left: `${piece.left}%`,
-              animationDelay: `${piece.delay}s`,
-              animationDuration: '4s'
-            }}
-          >
-            {piece.symbol}
-          </div>
-        ))}
-
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <div className="flex justify-center gap-4 mb-6">
-              <Trophy className="w-20 h-20 text-yellow-300 animate-bounce" />
-              <Crown className="w-20 h-20 text-yellow-300 animate-pulse" />
-              <Trophy className="w-20 h-20 text-yellow-300 animate-bounce" />
-            </div>
-            <h1 className="text-5xl font-bold text-white mb-4">
-              ¡RESULTADOS MULTIJUGADOR! 🏆
-            </h1>
-            <p className="text-xl text-white/90 mb-2">
-              {multiplayerResults.totalPlayers} jugadores han calificado todas las felicitaciones
-            </p>
-          </div>
-
-          {/* Global Results */}
-          <div className="grid lg:grid-cols-2 gap-8 mb-8">
-            {/* Best and Worst Friends */}
-            <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-8 shadow-2xl">
-              <h2 className="text-3xl font-bold text-white mb-6 text-center">🏆 Ranking de Felicitaciones</h2>
-              
-              {/* Best Friend */}
-              <div className="bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl p-6 mb-6 transform hover:scale-105 transition-transform">
-                <div className="flex items-center gap-4">
-                  <Crown className="w-12 h-12 text-yellow-300 animate-bounce" />
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={multiplayerResults.bestFriend.photo}
-                      alt={multiplayerResults.bestFriend.name}
-                      className="w-16 h-16 object-cover rounded-full border-4 border-white"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'flex';
-                      }}
-                    />
-                    <div className={`w-16 h-16 ${multiplayerResults.bestFriend.color} rounded-full flex items-center justify-center border-4 border-white`}>
-                      {React.createElement(multiplayerResults.bestFriend.icon, { className: "w-8 h-8 text-white" })}
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-white">🥇 MEJOR FELICITACIÓN</h3>
-                      <p className="text-xl font-semibold text-white">{multiplayerResults.bestFriend.name}</p>
-                      <p className="text-lg text-green-100">
-                        {multiplayerResults.friendAverages[multiplayerResults.bestFriend.id].toFixed(1)}/100 promedio
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Worst Friend */}
-              <div className="bg-gradient-to-r from-red-400 to-rose-500 rounded-2xl p-6 transform hover:scale-105 transition-transform">
-                <div className="flex items-center gap-4">
-                  <TrendingDown className="w-12 h-12 text-white animate-pulse" />
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={multiplayerResults.worstFriend.photo}
-                      alt={multiplayerResults.worstFriend.name}
-                      className="w-16 h-16 object-cover rounded-full border-4 border-white"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'flex';
-                      }}
-                    />
-                    <div className={`w-16 h-16 ${multiplayerResults.worstFriend.color} rounded-full flex items-center justify-center border-4 border-white`}>
-                      {React.createElement(multiplayerResults.worstFriend.icon, { className: "w-8 h-8 text-white" })}
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-white">📉 NECESITA MEJORAR</h3>
-                      <p className="text-xl font-semibold text-white">{multiplayerResults.worstFriend.name}</p>
-                      <p className="text-lg text-red-100">
-                        {multiplayerResults.friendAverages[multiplayerResults.worstFriend.id].toFixed(1)}/100 promedio
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Player Rankings */}
-            <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-8 shadow-2xl">
-              <h2 className="text-3xl font-bold text-white mb-6 text-center">👥 Ranking de Jugadores</h2>
-              <div className="space-y-4">
-                {Object.entries(allPlayersRatings)
-                  .sort(([,a], [,b]) => {
-                    const avgA = Object.values(a.ratings).reduce((sum, val) => sum + val, 0) / Object.values(a.ratings).length;
-                    const avgB = Object.values(b.ratings).reduce((sum, val) => sum + val, 0) / Object.values(b.ratings).length;
-                    return avgB - avgA;
-                  })
-                  .map(([playerId, playerData], index) => {
-                    const average = Object.values(playerData.ratings).reduce((sum, val) => sum + val, 0) / Object.values(playerData.ratings).length;
-                    const isCurrentPlayer = playerId === currentPlayerId;
-                    const medals = ['🥇', '🥈', '🥉'];
-                    
-                    return (
-                      <div 
-                        key={playerId}
-                        className={`rounded-2xl p-4 transform transition-transform hover:scale-105 ${
-                          isCurrentPlayer 
-                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500 ring-4 ring-white' 
-                            : 'bg-white/10'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl">{medals[index] || `#${index + 1}`}</span>
-                            <div>
-                              <p className={`font-bold text-lg ${isCurrentPlayer ? 'text-white' : 'text-white'}`}>
-                                {playerData.name} {isCurrentPlayer && '(Tú)'}
-                              </p>
-                              <p className={`text-sm ${isCurrentPlayer ? 'text-yellow-100' : 'text-white/80'}`}>
-                                Promedio general: {average.toFixed(1)}/100
-                              </p>
-                            </div>
-                          </div>
-                          {isCurrentPlayer && <Crown className="w-8 h-8 text-yellow-200 animate-bounce" />}
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-          </div>
-
-          {/* Complete Rankings Table */}
-          <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-8 shadow-2xl mb-8">
-            <h2 className="text-3xl font-bold text-white mb-6 text-center">📊 Tabla Completa de Calificaciones</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-white">
-                <thead>
-                  <tr className="border-b-2 border-white/30">
-                    <th className="text-left p-3 font-bold">Amigo</th>
-                    {Object.values(allPlayersRatings).map((player, index) => (
-                      <th key={index} className="text-center p-3 font-bold">{player.name}</th>
-                    ))}
-                    <th className="text-center p-3 font-bold bg-yellow-500/30 rounded-lg">Promedio</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {friends
-                    .sort((a, b) => multiplayerResults.friendAverages[b.id] - multiplayerResults.friendAverages[a.id])
-                    .map((friend, index) => (
-                    <tr key={friend.id} className="border-b border-white/20 hover:bg-white/10 transition-colors">
-                      <td className="p-3">
-                        <div className="flex items-center gap-3">
-                          <span className="text-lg">{index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`}</span>
-                          <img
-                            src={friend.photo}
-                            alt={friend.name}
-                            className="w-10 h-10 object-cover rounded-full"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextElementSibling.style.display = 'flex';
-                            }}
-                          />
-                          <div className={`w-10 h-10 ${friend.color} rounded-full flex items-center justify-center`}>
-                            {React.createElement(friend.icon, { className: "w-5 h-5 text-white" })}
-                          </div>
-                          <span className="font-semibold">{friend.name}</span>
-                        </div>
-                      </td>
-                      {Object.values(allPlayersRatings).map((player, playerIndex) => (
-                        <td key={playerIndex} className="text-center p-3 font-medium">
-                          {player.ratings[friend.id]}/100
-                        </td>
-                      ))}
-                      <td className="text-center p-3 font-bold bg-yellow-500/20 rounded-lg">
-                        {multiplayerResults.friendAverages[friend.id].toFixed(1)}/100
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="text-center">
-            <div className="flex flex-wrap justify-center gap-4">
-              <button
-                onClick={() => {
-                  const message = `¡Jugamos el modo multijugador de calificaciones! 🏆 ${multiplayerResults.bestFriend.name} tuvo la mejor felicitación (${multiplayerResults.friendAverages[multiplayerResults.bestFriend.id].toFixed(1)}/100) y ${multiplayerResults.worstFriend.name} necesita mejorar (${multiplayerResults.friendAverages[multiplayerResults.worstFriend.id].toFixed(1)}/100). #FelizCumpleanos`;
-                  if (navigator.share) {
-                    navigator.share({ text: message });
-                  } else if (navigator.clipboard) {
-                    navigator.clipboard.writeText(message);
-                    alert('¡Mensaje copiado al portapapeles!');
-                  } else {
-                    alert(message);
-                  }
-                }}
-                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300"
-              >
-                <Share className="w-6 h-6 inline mr-2" />
-                ¡Compartir Resultados!
-              </button>
-              <button
-                onClick={resetGame}
-                className="bg-white/20 hover:bg-white/30 text-white font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105"
-              >
-                <RotateCcw className="w-6 h-6 inline mr-2" />
-                Jugar de Nuevo
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!gameStarted || gameState !== 'playing') return null;
+  if (!gameStarted) return null;
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 p-4 relative overflow-hidden titulo_segunda_pantalla ${magicMode ? 'animate-pulse' : ''}`}>
+      {/* Special effects */}
+      {specialEffects.map((effect) => (
+        <div
+          key={effect.id}
+          className="fixed pointer-events-none z-40"
+          style={{ left: effect.x, top: effect.y, transform: 'translate(-50%, -50%)' }}
+        >
+          {effect.type === 'celebration' && <div className="text-6xl animate-ping">🎉</div>}
+          {effect.type === 'star' && <div className="text-4xl animate-spin text-yellow-400">⭐</div>}
+          {effect.type === 'curse' && <div className="text-4xl animate-bounce text-red-500">⚡</div>}
+        </div>
+      ))}
+
       {/* Confetti */}
       {confetti.map((piece) => (
         <div
@@ -858,102 +472,37 @@ const BirthdayGame = () => {
              ¡FELIZ CUMPLEAÑOS! 
           </h1>
           <p className="text-xl text-white/90 mb-2">
-            {isMultiplayer
-              ? 'Modo Multijugador - Califica las felicitaciones'
-              : gameMode === 'points'
-                ? 'Descubre puntos ocultos'
-                : 'Califica las felicitaciones'
-            }
+            {gameMode === 'points' ? 'Descubre puntos ocultos' : 'Califica las felicitaciones'}
           </p>
           <p className="text-lg text-white/80 mb-6">
             Haz clic en las bolitas para descubrir los mensajes
           </p>
-          {isMultiplayer && (
-            <div className="bg-white/20 backdrop-blur-lg rounded-xl p-3 mb-4">
-              <p className="text-white font-semibold">
-                🏆 Sala: {gameRoomId} | 👥 {players.length} jugadores
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Progress panel */}
-        {gameMode === 'points' ? (
-          <>
-            <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-4 shadow-lg mb-4 flex justify-center">
-              <div className="flex flex-wrap justify-center gap-20 w-full max-w-4xl text-center">
-                <div className="flex flex-col items-center text-white">
-                  <Trophy className="w-8 h-8 mb-1" />
-                  <span className="font-bold text-lg">{score} puntos</span>
-                </div>
-                <div className="flex flex-col items-center text-yellow-400">
-                  <Star className="w-8 h-8 mb-1" />
-                  <span className="font-bold text-lg">{collectedStars} bonus</span>
-                </div>
-                <div className="flex flex-col items-center text-red-500">
-                  <Zap className="w-8 h-8 mb-1" />
-                  <span className="font-bold text-lg">{collectedCurses} mald</span>
-                </div>
-                <div className="flex flex-col items-center text-white">
-                  <span className="font-semibold">{clickedBalls.size}/11 leídos</span>
-                </div>
+        <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-4 shadow-lg">
+          {/* Stats section - responsive for points mode, original for rating mode */}
+          {gameMode === 'points' ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+              <div className={`flex items-center gap-2 text-white ${score >= 0 ? 'text-green-300' : 'text-red-300'} justify-center md:justify-start`}>
+                <Trophy className="w-5 h-5 md:w-6 md:h-6" />
+                <span className="font-bold text-sm md:text-lg">{score} puntos</span>
+              </div>
+              <div className="flex items-center gap-2 text-yellow-300 justify-center md:justify-start">
+                <Star className="w-5 h-5 md:w-6 md:h-6" />
+                <span className="font-bold text-sm md:text-base">{collectedStars} bonus</span>
+              </div>
+              <div className="flex items-center gap-2 text-red-300 justify-center md:justify-start">
+                <Zap className="w-5 h-5 md:w-6 md:h-6" />
+                <span className="font-bold text-sm md:text-base">{collectedCurses} mald</span>
+              </div>
+              <div className="flex items-center gap-2 text-white justify-center md:justify-start">
+                <span className="font-semibold text-sm md:text-base">
+                  {clickedBalls.size}/11 leídos
+                </span>
               </div>
             </div>
-
-            <div className="flex justify-center gap-6 mb-8">
-              <button
-                onClick={() => setMusicEnabled(!musicEnabled)}
-                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors duration-300"
-                aria-label={musicEnabled ? "Desactivar música" : "Activar música"}
-              >
-                {musicEnabled ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
-              </button>
-
-              <button
-                onClick={() => {
-                  const message = `¡He jugado el juego de puntos y he conseguido ${score} puntos con ${collectedStars} bonus y ${collectedCurses} maldiciones! #FelizCumpleanos`;
-                  if (navigator.share) {
-                    navigator.share({ text: message });
-                  } else if (navigator.clipboard) {
-                    navigator.clipboard.writeText(message);
-                    alert('¡Mensaje copiado al portapapeles!');
-                  } else {
-                    alert(message);
-                  }
-                }}
-                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors duration-300"
-                aria-label="Compartir resultados"
-              >
-                <Share className="w-6 h-6" />
-              </button>
-
-              <button
-                onClick={resetGame}
-                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors duration-300"
-                aria-label="Reiniciar juego"
-              >
-                <RotateCcw className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Progress bar */}
-            <div className="w-full max-w-4xl mx-auto">
-              <div className="w-full bg-white/20 rounded-full h-4">
-                <div 
-                  className="h-4 rounded-full transition-all duration-700 flex items-center justify-center bg-gradient-to-r from-yellow-400 to-orange-500"
-                  style={{ width: `${(clickedBalls.size / 11) * 100}%` }}
-                >
-                  {clickedBalls.size > 0 && (
-                    <span className="text-white text-xs font-bold">
-                      {Math.round((clickedBalls.size / 11) * 100)}%
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-4 shadow-lg">
+          ) : (
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2 text-white">
@@ -970,41 +519,52 @@ const BirthdayGame = () => {
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Control buttons - responsive */}
-            <div className="flex items-center justify-center gap-2 md:gap-3 mb-4">
-              <button
-                onClick={() => setMusicEnabled(!musicEnabled)}
-                className="bg-white/20 hover:bg-white/30 text-white p-2 md:p-3 rounded-full transition-colors duration-300"
+          {/* Control buttons - responsive */}
+          <div className="flex items-center justify-center gap-2 md:gap-3 mb-4">
+            <button
+              onClick={() => setMusicEnabled(!musicEnabled)}
+              className="bg-white/20 hover:bg-white/30 text-white p-2 md:p-3 rounded-full transition-colors duration-300"
+            >
+              {musicEnabled ? <Volume2 className="w-4 h-4 md:w-5 md:h-5" /> : <VolumeX className="w-4 h-4 md:w-5 md:h-5" />}
+            </button>
+
+            <button
+              onClick={shareMessage}
+              className="bg-white/20 hover:bg-white/30 text-white p-2 md:p-3 rounded-full transition-colors duration-300"
+            >
+              <Share className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+
+            <button
+              onClick={resetGame}
+              className="bg-white/20 hover:bg-white/30 text-white p-2 md:p-3 rounded-full transition-colors duration-300"
+            >
+              <RotateCcw className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+          </div>
+
+          {/* Progress bar */}
+          <div className="mt-4">
+            <div className="w-full bg-white/20 rounded-full h-4">
+              <div 
+                className={`h-4 rounded-full transition-all duration-700 flex items-center justify-center ${
+                  gameMode === 'points' 
+                    ? (score >= 0 ? 'bg-gradient-to-r from-green-400 to-blue-500' : 'bg-gradient-to-r from-red-400 to-orange-500')
+                    : 'bg-gradient-to-r from-yellow-400 to-orange-500'
+                }`}
+                style={{ width: `${(clickedBalls.size / 11) * 100}%` }}
               >
-                {musicEnabled ? <Volume2 className="w-4 h-4 md:w-5 md:h-5" /> : <VolumeX className="w-4 h-4 md:w-5 md:h-5" />}
-              </button>
-
-              <button
-                onClick={resetGame}
-                className="bg-white/20 hover:bg-white/30 text-white p-2 md:p-3 rounded-full transition-colors duration-300"
-              >
-                <RotateCcw className="w-4 h-4 md:w-5 md:h-5" />
-              </button>
-            </div>
-
-            {/* Progress bar */}
-            <div className="mt-4">
-              <div className="w-full bg-white/20 rounded-full h-4">
-                <div 
-                  className="h-4 rounded-full transition-all duration-700 flex items-center justify-center bg-gradient-to-r from-yellow-400 to-orange-500"
-                  style={{ width: `${(clickedBalls.size / 11) * 100}%` }}
-                >
-                  {clickedBalls.size > 0 && (
-                    <span className="text-white text-xs font-bold">
-                      {Math.round((clickedBalls.size / 11) * 100)}%
-                    </span>
-                  )}
-                </div>
+                {clickedBalls.size > 0 && (
+                  <span className="text-white text-xs font-bold">
+                    {Math.round((clickedBalls.size / 11) * 100)}%
+                  </span>
+                )}
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Friends grid */}
@@ -1013,7 +573,7 @@ const BirthdayGame = () => {
           {friends.map((friend) => {
             const IconComponent = friend.icon;
             const isClicked = clickedBalls.has(friend.id);
-            
+
             return (
               <div key={friend.id} className="flex flex-col items-center">
                 <button
@@ -1031,7 +591,7 @@ const BirthdayGame = () => {
                       e.target.nextElementSibling.style.display = 'flex';
                     }}
                   />
-                  <div className={`w-full h-full ${friend.color} rounded-full flex items-center justify-center`}>
+                  <div className={`w-full h-full ${friend.color} rounded-full flex items-center justify-center ${friend.photo ? 'hidden' : 'flex'}`}>
                     <IconComponent className="w-8 h-8 md:w-10 md:h-10 text-white" />
                   </div>
 
@@ -1042,129 +602,173 @@ const BirthdayGame = () => {
                   )}
                 </button>
 
-                {isClicked && friendRatings[friend.id] && (
+                {!isClicked && gameMode === 'points' && (
+                  <div className="relative w-max max-w-full px-1 -mt-4 mx-auto" style={{ zIndex: 10 }}>
+                    <div className="bg-black/80 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap shadow-lg border border-white/20 text-center">
+                      ???
+                    </div>
+                  </div>
+                )}
+
+                {isClicked && gameMode === 'points' && (
+                  <div className="relative w-max max-w-full px-1 -mt-4 mx-auto" style={{ zIndex: 10 }}>
+                    <div className={`${ballPoints[friend.id] >= 0 ? 'bg-green-600' : 'bg-red-600'} text-white text-xs px-2 py-1 rounded-full whitespace-nowrap shadow-lg border border-white/20 text-center`}>
+                      {ballPoints[friend.id] >= 0 ? '+' : ''}{ballPoints[friend.id]}
+                    </div>
+                  </div>
+                )}
+
+                {isClicked && gameMode === 'rating' && friendRatings[friend.id] && (
                   <div className="relative w-max max-w-full px-1 -mt-4 mx-auto" style={{ zIndex: 10 }}>
                     <div className="bg-yellow-600 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap shadow-lg border border-white/20 text-center">
                       {friendRatings[friend.id]}/100
                     </div>
                   </div>
                 )}
-                
-          <div className="relative flex flex-col items-center">
-            {clickedBalls.has(friend.id) ? null : (
-              <span className="absolute -top-4 bg-black text-white rounded-full px-2 py-0.5 text-xs font-mono select-none z-10">
-                ???
-              </span>
-            )}
-            <p className="text-white font-semibold mt-6 text-sm text-center">
-              {friend.name}
-            </p>
-          </div>
+
+                <p className="text-white font-semibold mt-3 text-sm text-center">
+                  {friend.name}
+                </p>
+              </div>
+            );
+          })}
         </div>
-      );
-    })}
-  </div>
       </div>
 
-      {/* Final celebration for single player */}
-      {showCelebration && !isMultiplayer && (
+      {/* Final celebration */}
+      {showCelebration && (
         <div className="max-w-4xl mx-auto text-center mb-8">
-          <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl p-8 shadow-2xl animate-gentle-bounce">
+          <div className={`${gameMode === 'points' && score >= 0 ? 'bg-gradient-to-r from-green-400 via-blue-500 to-purple-500' : gameMode === 'points' ? 'bg-gradient-to-r from-red-400 via-orange-500 to-pink-500' : 'bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500'} rounded-3xl p-8 shadow-2xl animate-gentle-bounce`}>
             <div className="flex justify-center gap-4 mb-6">
-              <Award className="w-16 h-16 text-white animate-spin" />
-              <Cake className="w-16 h-16 text-white animate-pulse" />
-              <Award className="w-16 h-16 text-white animate-spin" />
+              {gameMode === 'points' ? (
+                score >= 0 ? (
+                  <>
+                    <Trophy className="w-16 h-16 text-white animate-spin" />
+                    <Cake className="w-16 h-16 text-white animate-pulse" />
+                    <Trophy className="w-16 h-16 text-white animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    <ThumbsDown className="w-16 h-16 text-white animate-bounce" />
+                    <Cake className="w-16 h-16 text-white animate-pulse" />
+                    <ThumbsDown className="w-16 h-16 text-white animate-bounce" />
+                  </>
+                )
+              ) : (
+                <>
+                  <Award className="w-16 h-16 text-white animate-spin" />
+                  <Cake className="w-16 h-16 text-white animate-pulse" />
+                  <Award className="w-16 h-16 text-white animate-spin" />
+                </>
+              )}
             </div>
 
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              ¡CALIFICACIONES COMPLETAS! 🏆
-            </h2>
-            <p className="text-white text-xl mb-6">
-              Has calificado todas las felicitaciones de tus amigos
-            </p>
-            <div className="bg-white/20 rounded-2xl p-6 mb-6">
-              <div className="mb-6">
-                <p className="text-yellow-200 text-4xl font-bold mb-2">
-                  {(Object.values(friendRatings).reduce((a, b) => a + b, 0) / Object.values(friendRatings).length).toFixed(1)}/100
+            {gameMode === 'points' ? (
+              <>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                  {score >= 0 ? '¡GANASTE! 🎊' : '¡PERDISTE! 😅'}
+                </h2>
+                <p className="text-white text-xl mb-6">
+                  {score >= 0 
+                    ? '¡Felicidades! Terminaste con puntos positivos' 
+                    : '¡No te preocupes! La diversión fue lo importante'
+                  }
                 </p>
-                <p className="text-white text-lg">Promedio General</p>
-              </div>
+                <div className="bg-white/20 rounded-2xl p-6 mb-6">
+                  <div className="grid md:grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className={`text-3xl font-bold mb-2 ${score >= 0 ? 'text-green-200' : 'text-red-200'}`}>
+                        {score}
+                      </p>
+                      <p className="text-white text-sm">Puntos Finales</p>
+                    </div>
+                    <div>
+                      <p className="text-yellow-200 text-3xl font-bold mb-2">
+                        {collectedStars}
+                      </p>
+                      <p className="text-white text-sm">⭐ Bonus</p>
+                    </div>
+                    <div>
+                      <p className="text-red-200 text-3xl font-bold mb-2">
+                        {collectedCurses}
+                      </p>
+                      <p className="text-white text-sm">⚡ Maldiciones</p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                  ¡CALIFICACIONES COMPLETAS! 🏆
+                </h2>
+                <p className="text-white text-xl mb-6">
+                  Has calificado todas las felicitaciones de tus amigos
+                </p>
+                <div className="bg-white/20 rounded-2xl p-6 mb-6">
+                  <div className="mb-6">
+                    <p className="text-yellow-200 text-4xl font-bold mb-2">
+                      {(Object.values(friendRatings).reduce((a, b) => a + b, 0) / Object.values(friendRatings).length).toFixed(1)}/100
+                    </p>
+                    <p className="text-white text-lg">Promedio General</p>
+                  </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-green-500/30 rounded-xl p-4">
-                  <h4 className="text-white font-bold mb-2">🏆 Mejor Felicitación</h4>
-                  <div className="flex items-center gap-3">
-                    {(() => {
-                      const bestFriend = friends.find(f => f.id === parseInt(Object.keys(friendRatings).reduce((a, b) => friendRatings[a] > friendRatings[b] ? a : b)));
-                      return (
-                        <>
+                  {getBestRatedFriend() && (
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="bg-green-500/30 rounded-xl p-4">
+                        <h4 className="text-white font-bold mb-2">🏆 Mejor Felicitación</h4>
+                        <div className="flex items-center gap-3">
                           <img
-                            src={bestFriend.photo}
-                            alt={bestFriend.name}
+                            src={getBestRatedFriend().photo}
+                            alt={getBestRatedFriend().name}
                             className="w-12 h-12 object-cover rounded-full"
                             onError={(e) => {
                               e.target.style.display = 'none';
                               e.target.nextElementSibling.style.display = 'flex';
                             }}
                           />
-                          <div className={`w-12 h-12 ${bestFriend.color} rounded-full flex items-center justify-center`}>
-                            {React.createElement(bestFriend.icon, { className: "w-6 h-6 text-white" })}
+                          <div className={`w-12 h-12 ${getBestRatedFriend().color} rounded-full flex items-center justify-center ${getBestRatedFriend().photo ? 'hidden' : 'flex'}`}>
+                            {React.createElement(getBestRatedFriend().icon, { className: "w-6 h-6 text-white" })}
                           </div>
                           <div>
-                            <p className="text-white font-bold">{bestFriend.name}</p>
+                            <p className="text-white font-bold">{getBestRatedFriend().name}</p>
                             <p className="text-green-200">{Math.max(...Object.values(friendRatings))}/100 puntos</p>
                           </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-                </div>
+                        </div>
+                      </div>
 
-                <div className="bg-red-500/30 rounded-xl p-4">
-                  <h4 className="text-white font-bold mb-2">📉 Necesita Mejorar</h4>
-                  <div className="flex items-center gap-3">
-                    {(() => {
-                      const worstFriend = friends.find(f => f.id === parseInt(Object.keys(friendRatings).reduce((a, b) => friendRatings[a] < friendRatings[b] ? a : b)));
-                      return (
-                        <>
-                          <img
-                            src={worstFriend.photo}
-                            alt={worstFriend.name}
-                            className="w-12 h-12 object-cover rounded-full"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextElementSibling.style.display = 'flex';
-                            }}
-                          />
-                          <div className={`w-12 h-12 ${worstFriend.color} rounded-full flex items-center justify-center`}>
-                            {React.createElement(worstFriend.icon, { className: "w-6 h-6 text-white" })}
+                      {getWorstRatedFriend() && getBestRatedFriend().id !== getWorstRatedFriend().id && (
+                        <div className="bg-red-500/30 rounded-xl p-4">
+                          <h4 className="text-white font-bold mb-2">📉 Necesita Mejorar</h4>
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={getWorstRatedFriend().photo}
+                              alt={getWorstRatedFriend().name}
+                              className="w-12 h-12 object-cover rounded-full"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextElementSibling.style.display = 'flex';
+                              }}
+                            />
+                            <div className={`w-12 h-12 ${getWorstRatedFriend().color} rounded-full flex items-center justify-center ${getWorstRatedFriend().photo ? 'hidden' : 'flex'}`}>
+                              {React.createElement(getWorstRatedFriend().icon, { className: "w-6 h-6 text-white" })}
+                            </div>
+                            <div>
+                              <p className="text-white font-bold">{getWorstRatedFriend().name}</p>
+                              <p className="text-red-200">{Math.min(...Object.values(friendRatings))}/100 puntos</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-white font-bold">{worstFriend.name}</p>
-                            <p className="text-red-200">{Math.min(...Object.values(friendRatings))}/100 puntos</p>
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            </div>
+              </>
+            )}
 
             <div className="flex flex-wrap justify-center gap-4">
               <button
-                onClick={() => {
-                  const avgRating = Object.values(friendRatings).reduce((a, b) => a + b, 0) / Object.values(friendRatings).length;
-                  const message = `¡Califiqué todas las felicitaciones de cumpleaños! 🎉 Promedio: ${avgRating.toFixed(1)}/100. #FelizCumpleanos`;
-                  if (navigator.share) {
-                    navigator.share({ text: message });
-                  } else if (navigator.clipboard) {
-                    navigator.clipboard.writeText(message);
-                    alert('¡Mensaje copiado al portapapeles!');
-                  } else {
-                    alert(message);
-                  }
-                }}
+                onClick={shareMessage}
                 className="bg-white/20 hover:bg-white/30 text-white font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105"
               >
                 <Share className="w-5 h-5 inline mr-2" />
@@ -1197,7 +801,7 @@ const BirthdayGame = () => {
                     e.target.nextElementSibling.style.display = 'flex';
                   }}
                 />
-                <div className={`w-full h-full ${selectedFriend.color} rounded-full flex items-center justify-center`}>
+                <div className={`w-full h-full ${selectedFriend.color} rounded-full flex items-center justify-center ${selectedFriend.photo ? 'hidden' : 'flex'}`}>
                   {React.createElement(selectedFriend.icon, { className: "w-10 h-10 text-white" })}
                 </div>
                 {/* Speaker button */}
@@ -1222,8 +826,33 @@ const BirthdayGame = () => {
               <h3 className="text-3xl font-bold text-gray-800 mb-2">
                 Mensaje de {selectedFriend.name} 💌
               </h3>
+              {gameMode === 'points' && (
+                <div className="mb-4">
+                  <p className={`font-bold text-lg ${ballPoints[selectedFriend.id] >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {ballPoints[selectedFriend.id] >= 0 ? '+' : ''}{ballPoints[selectedFriend.id]} puntos
+                  </p>
+                  {ballEffects[selectedFriend.id] === 'star' && (
+                    <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-3 mt-3 flex items-center gap-3">
+                      <Star className="w-8 h-8 text-yellow-500 animate-spin" />
+                      <div>
+                        <p className="font-bold text-yellow-800">¡Estrella Bonus! ⭐</p>
+                        <p className="text-yellow-700 text-sm">+50 puntos extra por esta felicitación</p>
+                      </div>
+                    </div>
+                  )}
+                  {ballEffects[selectedFriend.id] === 'curse' && (
+                    <div className="bg-red-100 border border-red-300 rounded-lg p-3 mt-3 flex items-center gap-3">
+                      <Zap className="w-8 h-8 text-red-500 animate-bounce" />
+                      <div>
+                        <p className="font-bold text-red-800">¡Maldición! ⚡</p>
+                        <p className="text-red-700 text-sm">-30 puntos de penalización</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            
+
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-6">
               <p className="text-gray-700 text-lg leading-relaxed">
                 {selectedFriend.message}
@@ -1276,7 +905,7 @@ const BirthdayGame = () => {
                 </div>
                 <span className="text-sm text-gray-500">Excelente</span>
               </div>
-              
+
               <div className="relative">
                 <input
                   type="range"
@@ -1292,7 +921,7 @@ const BirthdayGame = () => {
                   }}
                 />
               </div>
-              
+
               <div className="flex justify-between mt-2 text-xs text-gray-400">
                 <span>1</span>
                 <span>25</span>
@@ -1366,16 +995,6 @@ const BirthdayGame = () => {
 
         .smooth-slider::-moz-range-thumb {
           transition: all 0.15s ease-out;
-        }
-
-        @keyframes gentle-bounce {
-          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-5px); }
-          60% { transform: translateY(-3px); }
-        }
-
-        .animate-gentle-bounce {
-          animation: gentle-bounce 1.5s ease-in-out infinite;
         }
       `}</style>
     </div>
